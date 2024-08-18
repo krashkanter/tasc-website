@@ -57,7 +57,10 @@ const config = {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			fontFamily: {
-				sans: [...fontFamily.sans]
+				sans: [...fontFamily.sans],
+				expletus: ["Expletus", "sans"],
+				barcode39: ["Barcode39", "mono"],
+				dosis: ["Dosis", "Sans"]
 			}
 		}
 	}
