@@ -3,7 +3,6 @@
 	import Footer from '$lib/components/HeaderFooter/Footer.svelte';
 	import Navbar from '$lib/components/HeaderFooter/Navbar.svelte';
 	import Vectorall from '$lib/components/VectorBackground/vectorall.svelte';
-	// import '@fontsource-variable/open-sans';
 </script>
 
 <Navbar />
