@@ -1,5 +1,5 @@
 import { db } from '$lib/db/db';
-import { user } from '$lib/auth/stores';
+// import { user } from '$lib/auth/stores';
 
 // export const load = async({params})=>{
 //     const eventId=params.eventId;
@@ -21,6 +21,12 @@ export const load = async (event) => {
 		}
 	});
 
+	if (session === null) {
+		return {
+			event: eventDetail
+		};
+	}
+
 	const teams = await db.team.findFirst({
 		where: {
 			user: {
@@ -32,7 +38,7 @@ export const load = async (event) => {
 		},
 		include: {
 			user: true,
-			event: true,
+			event: true
 		}
 	});
 

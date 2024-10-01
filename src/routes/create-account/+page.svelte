@@ -11,6 +11,7 @@
 
 	import { redirectTo } from '$lib/stores/redirect';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	// let redirect = $page.url.searchParams.get('redirect') ?? '';
 	let redirect = $redirectTo ?? '';
 
@@ -110,7 +111,7 @@
 	}
 </script>
 
-{#if $userData !== null}
+{#if browser && $userData !== null}
 	{#if redirect !== ''}
 		{goto(redirect)}
 	{:else}

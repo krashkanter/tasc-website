@@ -2,8 +2,6 @@
 	import { page } from '$app/stores';
 	import { exclaim, success } from '$lib/components/Toast/toast';
 	import { onMount } from 'svelte';
-	import { user, setUser } from '$lib/auth/stores';
-	import { signIn } from '@auth/sveltekit/client';
 	import { MapPin, CalendarCheck2, Ticket, Crown } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { marked } from 'marked';
@@ -20,10 +18,7 @@
 	let isLeader = false;
 
 	onMount(async () => {
-		if (!$user) {
-			await signIn('google');
-			setUser({ session: $page.data.session, links: $page.data.links });
-		}if (leaderId == userId) {
+		if (leaderId == userId) {
 			isLeader = true;
 		}
 	});
@@ -134,6 +129,7 @@
 		</div>
 		<br />
 		
+		{#if $page.data.event.registrationsAvailable === true}
 		<div class="lg:mt-10 flex justify-around">
 			{#if team && event.type === 'TEAM'}
 				<Dialog.Root>
@@ -200,6 +196,7 @@
 				<button class="rounded-xl bg-brand px-5 py-3 text-2xl text-white duration-200 hover:scale-110 max-sm:text-xl" on:click={() => goto(`/events/upcoming/${event.id}/register`)}> Register Now </button>
 			{/if}
 		</div>
+		{/if}
 	</div>
 </div>
 

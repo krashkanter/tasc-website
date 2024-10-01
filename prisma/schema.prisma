@@ -131,7 +131,9 @@ model Event {
   winners      Winners[]
   organizers   User[]
   guests       String[]
+
   published    Boolean       @default(false)
+  registrationsAvailable Boolean @default(true)
 }
 
 model Links {
