@@ -2,21 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @import url('https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,400..700;1,400..700&display=swap'); */
-
 @font-face {
-	font-family: "Barcode39";
-	src: url("/src/routes/(navbar)/(spacetop)/workshop/fonts/barcode-39.ttf");
-  }
-
-@font-face {
-	font-family: Dosis;
-	src: url("/src/routes/(navbar)/(spacetop)/workshop/fonts/Dosis.ttf");
+	font-family: "Koulen";
+	src: url("/fonts/Koulen-Regular.ttf");
 }
 
 @font-face {
-	font-family: "Expletus";
-	src: url("/src/routes/(navbar)/(spacetop)/workshop/fonts/Expletus.ttf");	
+	font-family: "LuxuriousScript";
+	src: url("/fonts/LuxuriousScript-Regular.ttf");
 }
 
 @layer base {

@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { db, userID, userProfileData } from '$lib/firebase/firebase';
-	import { doc, updateDoc } from 'firebase/firestore';
-	import { exclaim, success } from '../Toast/toast';
+	// import { db, userID, userProfileData } from '$lib/firebase/firebase';
+	// import { doc, updateDoc } from 'firebase/firestore';
+	import { user, userProfileData, setUser } from '$lib/auth/stores';
+	import { exclaim, success, failure } from '../Toast/toast';
 	import Button from '../ui/custom_button/button.svelte';
 	import Input from '../ui/input/input.svelte';
 	import Label from '../ui/label/label.svelte';
@@ -18,15 +19,25 @@
 			exclaim('Please use only the specified set of characters - A-Za-z0-9~!#()[]{}",._ and make sure that you have entered 4 to 40 characters');
 			return;
 		}
-
-		const userRef = doc(db, 'profile', $userID!.user);
-
-		console.log('Updating college name');
-
-		await updateDoc(userRef, {
-			college
+		const response = await fetch('/api/username', {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				id: $user?.id,
+				college: college
+			})
 		});
-		success('Updated College successfully');
+		const data = await response.json();
+
+		if (data.data) {
+			success('Updated College successfully');
+			college = '';
+			setTimeout(() => { setUser(data.data) }, 3000);
+		} else {
+			failure('Failed to update Phone');
+		}
 	}
 </script>
 

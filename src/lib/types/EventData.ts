@@ -1,16 +1,13 @@
-import type { Timestamp } from 'firebase/firestore';
-
 export default interface EventData {
-	id: number;
+	id: string;
 	title: string;
 	image: string;
-	date: Timestamp;
-	time: string;
-	venue: string;
-	organizers: string;
-	description: string;
-	guests: string;
-	winners: string;
-	reportLink: string;
-	registrationLink: string;
+	date: Date;
+	time: string | null;
+	venue: string | null;
+	description: string | null;
+	guests: string[];
+	reportLink: string | null;
 }
+
+

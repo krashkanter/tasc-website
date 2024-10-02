@@ -1,22 +1,27 @@
 <script lang="ts">
 	import { navigating } from '$app/stores';
-	import { called, user, userData, userLoaded, userProfileData } from '$lib/firebase/firebase';
+	// import { called, user, userData, userLoaded, userProfileData } from '$lib/firebase/firebase';
 	import DarkLoader from '$lib/loader/DarkLoader.svelte';
 	import LightLoader from '$lib/loader/LightLoader.svelte';
 	import { loading } from '$lib/stores/loading';
 	import { darkTheme } from '$lib/stores/theme';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import '../app.css';
+	import { setUser, user, userData, userProfileData, userLoaded } from '$lib/auth/stores';
+	
+	/* Retrive data loaded from server */
+	export let data;
+
 	/* Subscribe to stores in root layout */
 	$darkTheme;
 	$user;
 	$userData;
 	$userProfileData;
-
 	$userLoaded;
-	$called;
 
-	//$: console.log('user', $userData);
+	/* Set User when data is loaded*/
+	setUser(data);
+	
 	$: $loading = !!$navigating;
 </script>
 

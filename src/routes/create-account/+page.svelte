@@ -8,11 +8,12 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { Label } from '$lib/components/ui/label';
 
-	import { db, user, userData } from '$lib/firebase/firebase';
-	import { doc, collection, getDoc, setDoc, writeBatch } from 'firebase/firestore';
+	import { user, userData, userProfileData } from '$lib/auth/stores';
 
 	import { page } from '$app/stores';
-	let redirect = $page.url.searchParams.get('redirect') ?? '';
+	import { redirectTo } from '$lib/stores/redirect';
+	// let redirect = $page.url.searchParams.get('redirect') ?? '';
+	let redirect = $redirectTo ?? ""
 
 	let name = '';
 	let usn = '';
@@ -58,49 +59,40 @@
 		debounceTimer = setTimeout(async () => {
 			console.log('checking availability of', username);
 
-			// We are making a reference to a document in FireStore in the
-			// "usernames" collection where doc id = username
-			const ref = doc(db, 'usernames', username);
-			const exists = await getDoc(ref).then((doc) => doc.exists());
+			// const exists = await getDoc(ref).then((doc) => doc.exists());
+			// Migration to AuthJS and Prisma
+			const response = await fetch(`/api/username?name=${username}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			const data = await response.json();
 
-			isAvailable = !exists;
+			isAvailable = !data.isExists;
 			loading = false;
 		}, 500);
 	}
 
 	async function createAccount() {
-		if (isValidName && isValidUSN && isValidUsername) {
+		if ((isValidName && isValidUSN && isValidUsername && isValidPhone) || ($userProfileData?.displayName && $userProfileData.usn && isValidUsername && $userProfileData.phone)) {
 			console.log('confirming username', username);
 
-			const batch = writeBatch(db);
-
-			// Create a new user document with an auto generated id
-			const newUserRef = doc(collection(db, 'user'));
-			batch.set(newUserRef, {
-				username: username,
-				name: name,
-				usn: usn,
-				createdAt: new Date().toISOString()
+			const response = await fetch(`/api/username?id=${$user?.id}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					displayName: name || $userProfileData?.displayName,
+					usn: usn || $userProfileData?.usn,
+					username: username,
+					phone: phone || $userProfileData?.phone
+				})
 			});
+			const data = await response.json();
 
-			// Add the user to the auth collection
-			batch.set(doc(db, 'auth', $user!.uid), { user: newUserRef.id });
-
-			// Username is unique, so we are using it as the document id
-			batch.set(doc(db, 'usernames', username), { user: newUserRef.id });
-
-			// Create temporary user profile
-			batch.set(doc(db, 'profile', newUserRef.id), {
-				name: name,
-				usn: usn,
-				phone: isValidPhone ? phone : '',
-				username: username,
-				photoURL: $user!.photoURL,
-				bio: 'Hello! I am ' + name + '.',
-				createdAt: new Date().toISOString()
-			});
-
-			await batch.commit();
+			user.set(data.user);
 
 			username = '';
 			isAvailable = false;
@@ -110,27 +102,29 @@
 	}
 </script>
 
-<AuthCheck>
-	{#if $userData !== null}
-		{#if redirect !== ''}
-			{goto(redirect)}
-		{:else}
-			<!-- {goto('/' + $userData.username + '/edit')} -->
-			{goto('/')}
-		{/if}
-	{:else if $user}
-		<div class="m-2 flex min-h-screen items-center justify-center">
-			<Card.Root class="max-w-2xl">
-				<Card.Header class="space-y-1">
-					<Card.Title class="text-3xl">Enter your details</Card.Title>
-					<h2 class="card-title">Welcome, {$user.displayName}</h2>
-					<Card.Description>You have successfully signed in. Now you can enter your details. Make sure to enter all your details correctly. Some of these details like your name cannot be changed later unless you contact the admins.</Card.Description>
-				</Card.Header>
+{#if $userData !== null}
+	{#if redirect !== ''}
+		{goto(redirect)}
+	{:else}
+		<!-- {goto('/' + $userData.username + '/edit')} -->
+		{goto('/')}
+	{/if}
+{:else if $user}
+	<div class="m-2 flex min-h-screen items-center justify-center">
+		<Card.Root class="max-w-2xl">
+			<Card.Header class="space-y-1">
+				<Card.Title class="text-3xl">Enter your details</Card.Title>
+				<h2 class="card-title">Welcome, {$user.name}</h2>
+				<Card.Description>You have successfully signed in. Now you can enter your details. Make sure to enter all your details correctly. Some of these details like your name cannot be changed later unless you contact the admins.</Card.Description>
+			</Card.Header>
 
-				<form on:submit|preventDefault={createAccount}>
-					<Card.Content>
-						<div>
-							<Label class="text-xl" for="name">Name</Label>
+			<form on:submit|preventDefault={createAccount}>
+				<Card.Content>
+					<div>
+						<Label class="text-xl" for="name">Name</Label>
+						{#if $userProfileData?.displayName}
+							<p class="text-white bg-muted px-3 py-2 text-sm rounded-md">{$userProfileData?.displayName}</p>
+						{:else}
 							<Input type="text" id="name" placeholder="Enter your full name" bind:value={name} class={!isValidName && isTouchedName ? 'bg-red-200 dark:bg-red-900' : ''} required />
 							<p class="mt-1 text-sm text-muted-foreground">This is the name that will appear on your certificates.</p>
 							{#if isTouchedName && !isValidName}
@@ -139,10 +133,14 @@
 									<p class="text-sm text-muted-foreground">Your name must begin with a Capital letter and shouldn't begin or end with a space.</p>
 								</div>
 							{/if}
-						</div>
+						{/if}
+					</div>
 
-						<div class="mt-6">
-							<Label class="text-xl" for="usn">USN</Label>
+					<div class="mt-6">
+						<Label class="text-xl" for="usn">USN</Label>
+						{#if $userProfileData?.usn}
+							<p class="text-white bg-muted px-3 py-2 text-sm rounded-md">{$userProfileData.usn}</p>
+						{:else}
 							<Input type="text" id="usn" placeholder="Enter your college USN" bind:value={usn} class={!isValidUSN && isTouchedUSN ? 'bg-red-200 dark:bg-red-900' : ''} required />
 							{#if isTouchedUSN && !isValidUSN}
 								<div class="mb-2">
@@ -150,56 +148,59 @@
 									<p class="text-sm text-muted-foreground">USN must be 2-14 characters long and alphanumeric (CAPITAL letters only)</p>
 								</div>
 							{/if}
-						</div>
+						{/if}
+					</div>
 
-						<div class="mt-6">
-							<Label for="username" class="mt-10 text-xl">Username</Label>
-							<Input type="text" class="{!isValidUsername && isTouchedUsername ? 'bg-red-200 dark:bg-red-900' : ''} {isTakenUsername ? 'bg-yellow-200 dark:bg-yellow-700' : ''} {isAvailable && isValidUsername && !loading ? 'bg-green-300 dark:bg-green-800' : ''}" id="username" placeholder="Enter a username" bind:value={username} on:input={checkAvailability} required />
-							<p class="mt-1 text-sm text-muted-foreground">Your username is public and is used to access your profile page.</p>
+					<div class="mt-6">
+						<Label for="username" class="mt-10 text-xl">Username</Label>
+						<Input type="text" class="{!isValidUsername && isTouchedUsername ? 'bg-red-200 dark:bg-red-900' : ''} {isTakenUsername ? 'bg-yellow-200 dark:bg-yellow-700' : ''} {isAvailable && isValidUsername && !loading ? 'bg-green-300 dark:bg-green-800' : ''}" id="username" placeholder="Enter a username" bind:value={username} on:input={checkAvailability} required />
+						<p class="mt-1 text-sm text-muted-foreground">Your username is public and is used to access your profile page.</p>
 
-							{#if isTouchedUsername}
-								<div class="mt-4">
-									{#if loading}
-										<p>Checking availability of @{username}...</p>
-									{/if}
+						{#if isTouchedUsername}
+							<div class="mt-4">
+								{#if loading}
+									<p>Checking availability of @{username}...</p>
+								{/if}
 
-									{#if !isValidUsername && isTouchedUsername}
-										<p class="mt-1 text-sm text-muted-foreground">Username must be 3-16 characters long and alphanumeric (small letters only)</p>
-									{/if}
+								{#if !isValidUsername && isTouchedUsername}
+									<p class="mt-1 text-sm text-muted-foreground">Username must be 3-16 characters long and alphanumeric (small letters only)</p>
+								{/if}
 
-									{#if isValidUsername && !isAvailable && !loading}
-										<p>
-											@{username} is not available
-										</p>
-									{/if}
+								{#if isValidUsername && !isAvailable && !loading}
+									<p>
+										@{username} is not available
+									</p>
+								{/if}
 
-									{#if isValidUsername && isAvailable}
-										<p class="text-green-500">@{username} is available</p>
-									{/if}
-								</div>
-							{/if}
-						</div>
+								{#if isValidUsername && isAvailable}
+									<p class="text-green-500">@{username} is available</p>
+								{/if}
+							</div>
+						{/if}
+					</div>
 
-						<div class="mt-6">
-							<Label for="whatsapp" class="mt-10 text-xl">Phone Number</Label>
+					<div class="mt-6">
+						<Label for="whatsapp" class="mt-10 text-xl">Phone Number</Label>
+						{#if $userProfileData?.phone}
+							<p class="text-white bg-muted px-3 py-2 text-sm rounded-md">{$userProfileData.phone}</p>
+						{:else}
 							<Input type="text" class="{!isValidPhone && isTouchedPhone ? 'bg-red-200 dark:bg-red-900' : ''} {isValidPhone ? 'bg-green-300 dark:bg-green-800' : ''}" id="usn" placeholder="Enter your WhatsApp Phone Number" bind:value={phone} required />
-
 							{#if isTouchedPhone && !isValidPhone}
 								<div>
 									<p>Write your number as 10 digits with no other characters</p>
 								</div>
 							{/if}
+						{/if}
 
-							<p class="mt-1 text-sm text-muted-foreground">We will use this number to contact you if necessary.</p>
-							<p class="mt-1 text-sm text-muted-foreground">You can also change this number in your account settings.</p>
-						</div>
-					</Card.Content>
+						<p class="mt-1 text-sm text-muted-foreground">We will use this number to contact you if necessary.</p>
+						<p class="mt-1 text-sm text-muted-foreground">You can also change this number in your account settings.</p>
+					</div>
+				</Card.Content>
 
-					<Card.Footer>
-						<Button class="w-full" type="submit">Submit</Button>
-					</Card.Footer>
-				</form>
-			</Card.Root>
-		</div>
-	{/if}
-</AuthCheck>
+				<Card.Footer>
+					<Button class="w-full" type="submit">Submit</Button>
+				</Card.Footer>
+			</form>
+		</Card.Root>
+	</div>
+{/if}

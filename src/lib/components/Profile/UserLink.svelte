@@ -1,7 +1,7 @@
-<script>
-	export let icon = '';
+<script lang='ts'>
+	export let icon: string = '';
 	// export let platform = 'none';
-	export let url = '/';
+	export let url: string | null | undefined = '/';
 	export let title = 'A cool title';
 	export let disabled = false;
 </script>
@@ -22,7 +22,7 @@
 		{:else if icon === 'twitter'}
 			<iconify-icon icon="simple-icons:x" height="16" />
 			<span class="hidden sm:block">{title}</span>
-		{:else if icon === 'linkedIn'}
+		{:else if icon === 'linkedin'}
 			<iconify-icon icon="mdi:linkedin" height="20" />
 			<span class="hidden sm:block">{title}</span>
 		{:else if icon === 'github'}

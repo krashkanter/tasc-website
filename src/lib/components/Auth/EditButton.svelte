@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { user, userData, userLoaded } from '$lib/firebase/firebase';
+	import { user, userData, userLoaded } from '$lib/auth/stores';
 	import { Button } from '../ui/custom_button';
-	export let currentUsername: string | undefined;
+	export let currentUsername: string | null;
 </script>
 
 {#if !$userLoaded}

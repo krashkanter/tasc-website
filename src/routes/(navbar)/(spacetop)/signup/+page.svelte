@@ -1,6 +1,6 @@
 <script lang="ts">
 	import UserAuthForm from '$lib/components/Auth/user-auth-form.svelte';
-	import { userLoaded } from '$lib/firebase/firebase';
+	import { userLoaded } from '$lib/auth/stores';
 </script>
 
 <div class="container relative flex h-[85vh] flex-col items-center justify-center">

@@ -6,8 +6,8 @@
 	export let imageAlt: string = 'profile';
 	export let name: string;
 	export let designation: string = 'Professor';
-	export let designation2: string;
-	export let about: Array<any> = [];
+	export let designation2: string | null;
+	export let about: Array<string> = [];
 	// export let target: string = '_blank';
 </script>
 
@@ -37,9 +37,9 @@
 				<img src={image2} alt={imageAlt} class="aspect-square w-64 object-cover md:flex-shrink-0 lg:w-96" />
 			</div>
 
-			<div class="flex flex-grow flex-col overflow-y-auto px-4">
+			<div class="flex flex-grow flex-col overflow-y-auto space-y-8 px-4">
 				{#each about as para}
-					<p class="pt-2">{para}</p>
+					<p>{para}</p>
 				{/each}
 			</div>
 		</div>

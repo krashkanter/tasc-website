@@ -2,13 +2,13 @@
 	import Button from '$lib/components/ui/custom_button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { db, userID, userProfileData } from '$lib/firebase/firebase';
-	import { toast } from '@zerodevx/svelte-toast';
-	import { doc, updateDoc } from 'firebase/firestore';
-	import { information, success } from '../Toast/toast';
+	// import { db, userID, userProfileData } from '$lib/firebase/firebase';
+	// import { doc, updateDoc } from 'firebase/firestore';
+	import { user, userProfileData, setUser } from '$lib/auth/stores';
+	import { information, success, failure } from '../Toast/toast';
 
-	let color_light: string = $userProfileData?.color_light ?? '';
-	let color_dark: string = $userProfileData?.color_dark ?? '';
+	let color_light: string = $userProfileData?.lightTheme ?? '';
+	let color_dark: string = $userProfileData?.darkTheme ?? '';
 
 	function resetColor() {
 		color_light = '';
@@ -19,21 +19,33 @@
 	}
 
 	async function updateColor(e: Event | null) {
-		const userRef = doc(db, 'profile', $userID!.user);
-
-		await updateDoc(userRef, {
-			color_light,
-			color_dark
+		const response = await fetch('/api/username', {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				id: $user?.id,
+				lightTheme: color_light,
+				darkTheme: color_dark
+			})
 		});
-		success('Color Updated Successfully!');
+		const data = await response.json();
+
+		if (data.data) {
+			success('Updated Color successfully');
+			setTimeout(() => { setUser(data.data) }, 3000);
+		} else {
+			failure('Failed to update Phone');
+		}
 	}
 </script>
 
 <div class="h-[428px]">
 	<h1 class="text-2xl font-medium">Custom background color</h1>
 	<div class="flex w-full flex-col gap-y-4 pb-4 pt-2">
-		<Label class="flex flex-col gap-y-1 text-muted"><span>Lightmode Color:</span> <span class="text-primary">{$userProfileData?.color_light ? $userProfileData?.color_light : 'Default'}</span></Label>
-		<Label class="flex flex-col gap-y-1 text-muted"><span>Darkmode Color:</span><span class="text-primary">{$userProfileData?.color_dark ? $userProfileData?.color_dark : 'Default'}</span></Label>
+		<Label class="flex flex-col gap-y-1 text-muted"><span>Lightmode Color:</span> <span class="text-primary">{$userProfileData?.lightTheme ? $userProfileData?.lightTheme : 'Default'}</span></Label>
+		<Label class="flex flex-col gap-y-1 text-muted"><span>Darkmode Color:</span><span class="text-primary">{$userProfileData?.darkTheme ? $userProfileData?.darkTheme : 'Default'}</span></Label>
 	</div>
 
 	<div class="grid gap-1">

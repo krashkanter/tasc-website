@@ -7,7 +7,7 @@ export function success(message: string) {
 			'--toastColor': 'white',
 			'--toastBackground': '#79c779',
 			'--toastBarBackground': '#289f28'
-		}
+		},
 	});
 }
 

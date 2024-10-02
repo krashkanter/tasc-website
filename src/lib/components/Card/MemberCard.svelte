@@ -1,13 +1,13 @@
 <script lang="ts">
 	export let image: string;
 	export let imageAlt: string = 'profile';
-	export let name: string;
-	export let role: string;
-	export let quote: string = 'no description';
+	export let name: string | null;
+	export let post: string;
+	export let quote: string | null = '';
 	export let target: string = '_blank';
-	export let github: string | null = null;
-	export let linkedin: string | null = null;
-	export let instagram: string | null = null;
+	export let github: string | null | undefined = null;
+	export let linkedin: string | null | undefined = null;
+	export let instagram: string | null | undefined = null;
 	// export let email: string | null = null;
 
 	export let lazy: boolean;
@@ -48,11 +48,11 @@
 >
 	<div class="mx-14 flex items-center justify-center">
 		<!-- w-32 h-32 -->
-		<img {src} alt={imageAlt} class="aspect-square w-full rounded-full border border-border object-cover" use:lazyLoad={observer} />
+		<img {src} alt={imageAlt} class="aspect-square w-full rounded-full border border-border object-cover place-content-center" use:lazyLoad={observer} />
 	</div>
 	<div class="flex flex-col items-center justify-center">
 		<h1 class="pt-4 text-xl font-bold">{name}</h1>
-		<h2 class="p-2 text-lg font-medium text-zinc-600 dark:text-slate-400">{role}</h2>
+		<h2 class="p-2 text-lg font-medium text-zinc-600 dark:text-slate-400 text-center">{post}</h2>
 
 		<!-- <div on:click|stopPropagation={() => {}} class="flex gap-5 py-2">
 			{#if instagram}
@@ -90,7 +90,7 @@
 		</div>
 		<div class="flex flex-col items-center justify-center">
 			<h1 class="pt-4 text-2xl font-bold">{name}</h1>
-			<h2 class="p-2 text-base font-medium">{role}</h2>
+			<h2 class="p-2 text-base font-medium">{post}</h2>
 
 			<div on:click|stopPropagation={() => {}} class="flex gap-5 py-2">
 				{#if instagram}
@@ -109,7 +109,9 @@
 					</a>
 				{/if}
 			</div>
-			<p class="px-10 py-4 text-center">{quote}</p>
+			{#if quote}
+				<p class="px-10 py-4 text-center">{quote}</p>
+			{/if}
 		</div>
 	</div>
 </div>

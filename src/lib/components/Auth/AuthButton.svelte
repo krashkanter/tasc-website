@@ -4,18 +4,20 @@
 	import { Button } from '$lib/components/ui/custom_button';
 	import * as Popover from '$lib/components/ui/custom_popover';
 
-	import { auth, user, userData, userLoaded } from '$lib/firebase/firebase';
+	import { user, userData , userLoaded} from "$lib/auth/stores"
+	import { signIn, signOut } from "@auth/sveltekit/client"
+	import { redirectTo } from '$lib/stores/redirect';
+	import { page } from '$app/stores';
 
-	import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 	async function signInWithGoogle() {
-		const provider = new GoogleAuthProvider();
-		await signInWithPopup(auth, provider);
+		redirectTo.set($page.url.pathname)
+		await signIn("google")
 		loggedIn = true;
 	}
 
 	async function signOutSSR() {
-		await signOut(auth);
+		await signOut();
 	}
 
 	let loggedIn = false;
@@ -32,7 +34,7 @@
 		<Popover.Content>
 			<div class="flex max-w-xs flex-col gap-2">
 				<div class="px-2 text-lg text-center">
-					Hello <span class="font-semibold">{$userData.name}</span>
+					Hello <span class="font-semibold">{$userData?.displayName}</span>
 				</div>
 				<a href="/{$userData.username}" class="contents"> <Button class="border bg-transparent text-primary" variant={'secondary'}>Your Public Profile</Button> </a>
 				<a href="/{$userData.username}/edit" class="contents"><Button class="border bg-transparent text-primary" variant={'secondary'}>Edit Profile</Button></a>

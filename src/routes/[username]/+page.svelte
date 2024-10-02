@@ -6,37 +6,35 @@
 	import Vectorall from '$lib/components/VectorBackground/vectorall.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { darkTheme } from '$lib/stores/theme';
-	import { json } from '@sveltejs/kit';
 	import type { PageData } from './$types';
-	import VectorBr from '$lib/components/VectorBackground/vectorBR.svelte';
 
-	export let data: PageData;
+	export let data: PageData & any;
 </script>
 
 <svelte:head>
 	<title>@{data.username} | TASC</title>
-	<meta name="description" content={data.bio} />
+	<meta name="description" content={data.bio ?? ""} />
 </svelte:head>
 
 <svelte:body
 	use:backgroundColor={{
-		color_light: data.color_light ?? '',
-		color_dark: data.color_dark ?? '',
+		color_light: data.lightTheme ?? '',
+		color_dark: data.darkTheme ?? '',
 		darkTheme: $darkTheme
 	}}
 />
 <div class="mx-2 flex flex-col items-center justify-center sm:my-6">
 	<!-- <h1 class="mt-2 text-center text-3xl sm:text-4xl">Profile</h1> -->
 	<div class="custom-shadow-black dark:custom-shadow-white flex h-auto w-full flex-col items-center gap-y-3 rounded-md border border-primary bg-primary bg-opacity-5 p-10 sm:w-3/4 md:w-[550px]">
-		{#if data.photoURL}
-			<img src={data.photoURL} alt="photoURL" class="aspect-square w-32 rounded-full object-cover sm:w-52" />
+		{#if data.image}
+			<img src={data.image} alt="photoURL" class="aspect-square w-32 rounded-full object-cover sm:w-52" />
 		{:else}
 			<img src={'/fallback-image.jpg'} alt="photoURL" class="aspect-square w-32 rounded-full object-cover md:w-52" />
 		{/if}
-		<h1 class="text-center text-lg font-bold md:text-2xl">{data.name}</h1>
+		<h1 class="text-center text-lg font-bold md:text-2xl">{data.displayName}</h1>
 		<Separator class="h-[0.5px] w-2/3 bg-primary" />
 		<p class="mb-2 text-center text-sm text-muted md:text-base">{data.bio ?? 'No bio yet'}</p>
-		<EditButton currentUsername={data.username} />
+		<EditButton currentUsername={data.username ?? null} />
 	</div>
 	<h1 class="mt-4 text-center text-3xl sm:text-4xl">My Links</h1>
 	<div class="w-ful flex justify-center sm:w-3/4 md:w-[550px]">

@@ -9,23 +9,26 @@
 	import UpdatePhoto from '$lib/components/Profile/UpdatePhoto.svelte';
 	import Vectorall from '$lib/components/VectorBackground/vectorall.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { userData, userProfileData } from '$lib/firebase/firebase';
+	import { userData, userProfileData } from '$lib/auth/stores';
 	import { darkTheme } from '$lib/stores/theme';
+	import UpdataUsername from '$lib/components/Profile/UpdataUsername.svelte';
 </script>
 
 <svelte:body
 	use:backgroundColor={{
-		color_light: $userProfileData?.color_light ?? '',
-		color_dark: $userProfileData?.color_dark ?? '',
+		color_light: $userProfileData?.lightTheme ?? '',
+		color_dark: $userProfileData?.darkTheme ?? '',
 		darkTheme: $darkTheme
 	}}
 />
 
 {#if $userData?.username == $page.params.username}
 	<section class="relative mt-4 flex w-full justify-center px-2 sm:px-0">
-		<div class="custom-shadow-black dark:custom-shadow-white mx-auto flex flex-1 flex-col gap-x-8 rounded-2xl border border-primary bg-primary bg-opacity-5 p-10 text-center md:mx-4 md:max-w-6xl lg:flex-row">
+		<div class="custom-shadow-black dark:custom-shadow-white mx-auto flex flex-1 flex-col gap-x-8 rounded-2xl border border-primary bg-card bg-opacity-80 p-10 text-center md:mx-4 md:max-w-6xl lg:flex-row">
 			<div class="flex flex-col lg:w-1/2">
 				<UpdatePhoto />
+				<Separator class="my-4 bg-slate-500 dark:bg-muted" />
+				<UpdataUsername />
 				<Separator class="my-4 bg-slate-500 dark:bg-muted" />
 				<UpdatePhone />
 			</div>

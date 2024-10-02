@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { user } from '$lib/firebase/firebase';
+	import { user } from '$lib/auth/stores';
 	import { Button } from '$lib/components/ui/custom_button';
 	import * as Card from '$lib/components/ui/card';
 	import SignInOut from './SignInOut.svelte';

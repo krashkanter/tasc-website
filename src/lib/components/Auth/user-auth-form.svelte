@@ -5,22 +5,34 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
 
-	import { auth, userData } from '$lib/firebase/firebase';
-	import { user } from '$lib/firebase/firebase';
+	// import { auth, userData } from '$lib/firebase/firebase';
+	// import { user } from '$lib/firebase/firebase';
 
-	import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+	import { user, userData , userLoaded} from "$lib/auth/stores"
+	import { signIn, signOut } from "@auth/sveltekit/client"
+
+	// import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 	import { goto } from '$app/navigation';
 
 	import { page } from '$app/stores';
+	import { browser } from '$app/environment';
 	let redirect = $page.url.searchParams.get('redirect') ?? '';
 
 	async function signInWithGoogle() {
-		const provider = new GoogleAuthProvider();
-		await signInWithPopup(auth, provider);
+		await signIn("google");
 	}
 
 	async function signOutSSR() {
-		await signOut(auth);
+		await signOut();
+	}
+
+	$: {
+		if ($user && browser) {
+			if ($userData) 
+				goto('/');
+			else
+				goto('/create-account');
+		}
 	}
 </script>
 
@@ -35,12 +47,6 @@
 			<a class="w-full" href="/{$userData.username}/edit"> <Button class="w-full">Account settings</Button></a>
 		</Card.Footer>
 	</Card.Root>
-{:else if $user}
-	{#if redirect !== ''}
-		{goto('/create-account')}
-	{:else}
-		{goto('/create-account?redirect=' + redirect)}
-	{/if}
 	<!-- <Card.Root class="m-2">
 		<Card.Content class="mt-4 flex flex-col gap-4">
 			<h2 class="card-title">Welcome, {$user.displayName}</h2>

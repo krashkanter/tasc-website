@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type MemberData from '$lib/components/types/MemberData';
+	import type MemberData from '$lib/types/MemberData';
 	import MemberCard from '../Card/MemberCard.svelte';
 	export let members: MemberData[];
 </script>

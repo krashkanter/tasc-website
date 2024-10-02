@@ -1,10 +1,11 @@
 <script lang="ts">
 	import SortableList from '$lib/components/Profile/SortableList.svelte';
 	import UserLink from '$lib/components/Profile/UserLink.svelte';
-	import { db, userData, userID, userProfileData } from '$lib/firebase/firebase';
-	import { arrayRemove, arrayUnion, doc, setDoc, updateDoc } from 'firebase/firestore';
+	// import { db, userData, userID, userProfileData } from '$lib/firebase/firebase';
+	// import { arrayRemove, arrayUnion, doc, setDoc, updateDoc } from 'firebase/firestore';
+	import { user, userProfileData, setUser } from '$lib/auth/stores';
 	import { writable } from 'svelte/store';
-
+	import { success, failure } from '../Toast/toast';
 	import { Button, buttonVariants } from '$lib/components/ui/custom_button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
@@ -41,56 +42,104 @@
 	$: titleIsValid = $formData.title.length < 20 && $formData.title.length > 0;
 	$: formIsValid = urlIsValid && titleIsValid;
 
-	function sortList(e: CustomEvent) {
-		const newList = e.detail;
-		const userRef = doc(db, 'profile', $userID!.user);
-		setDoc(userRef, { links: newList }, { merge: true });
+	async function sortList(e: CustomEvent) {
+		const response = await fetch('/api/username/links', {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ id: $user?.id, order: e.detail })
+		})
+
+		const data = await response.json()
+		if(data.data)
+			setUser(data.data);
 	}
 
 	async function addLink(e: SubmitEvent) {
-		const userRef = doc(db, 'profile', $userID!.user);
+		const body: any = { id: $user?.id }
+		body.order = [...($userProfileData?.order || []), $formData.title]
+		if ($formData.icon === 'custom') body.custom = { [$formData.title]: $formData.url }
+		else body[$formData.icon] = $formData.url
 
-		await updateDoc(userRef, {
-			links: arrayUnion({
-				...$formData,
-				id: Date.now().toString()
-			})
-		});
+		const response = await fetch('/api/username/links', {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(body)
+		})
 
-		formData.set({
-			icon: 'instagram',
-			title: '',
-			url: ''
-		});
-
-		showForm = false;
+		const data = await response.json()
+		if(data.data) {
+			formData.set(formDefaults);
+			showForm = false;
+			success('Link added successfully');
+			setTimeout(() => { setUser(data.data) }, 3000);
+		}else {
+			formData.set(formDefaults);
+			showForm = false;
+			failure('Failed to add link');
+		}
 	}
 
-	async function deleteLink(item: any) {
-		const userRef = doc(db, 'profile', $userID!.user);
-		await updateDoc(userRef, {
-			links: arrayRemove(item)
-		});
+	async function deleteLink(item: string) {
+		const body: any = { id: $user?.id, order: $userProfileData?.order.filter((link: string) => link !== item) }
+		if (['instagram', 'linkedin', 'twitter', 'github'].includes(item)) body[item] = null;
+		else {
+			const { [item]: _, ...remainingCustom } = $userProfileData?.custom ?? {};
+  			body.custom = remainingCustom;
+		}
+
+		const response = await fetch('/api/username/links', {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(body)
+		})
+
+		const data = await response.json()
+		if(data.data) {
+			success('Link deleted successfully');
+			setTimeout(() => { setUser(data.data) }, 3000);
+		}else
+			failure('Failed to delete link');
 	}
 
 	function cancelLink() {
 		formData.set(formDefaults);
 		showForm = false;
 	}
+
+	function getItemIcon(item: string) {
+		if (['instagram', 'linkedin', 'twitter', 'github'].includes(item)) return item;
+		return 'custom';
+	}
+
+	function getItemUrl(item: string) {
+		if (['instagram', 'linkedin', 'twitter', 'github'].includes(item)) return $userProfileData?.[item] ?? '';
+		else if ($userProfileData?.custom?.[item]) return $userProfileData?.custom[item];
+	}
+
+	function getItemTitle(item: string): string {
+		if ($userProfileData?.[item] || $userProfileData?.custom?.[item]) return item.charAt(0).toUpperCase() + item.slice(1);
+		else return 'Unknown';
+	}
 </script>
 
 <div class="grid-item flex flex-col border">
 	<h1 class="text-2xl font-medium">Update your social links</h1>
 	<p class="text-base text-muted mt-1">Drag and drop to reorder your links</p>
-	<Dialog.Root>
-		{#if $userProfileData?.links?.length !== 8}
+	<Dialog.Root bind:open={showForm}>
+		{#if $userProfileData?.order?.length !== 8}
 			<Dialog.Trigger class="{buttonVariants({ variant: 'secondary' })} m-2 w-1/3 min-w-fit self-center rounded-full border border-primary bg-transparent">Add Links</Dialog.Trigger>
 		{:else}
 			<p>You have reached max link limit!</p>
 		{/if}
 
 		<Dialog.Content class="sm:max-w-[425px]">
-			{#if $userProfileData?.links?.length !== 8}
+			{#if $userProfileData?.order?.length !== 8}
 				<form on:submit|preventDefault={addLink}>
 					<Dialog.Header class="mb-4">
 						<Dialog.Title>Add a Link</Dialog.Title>
@@ -147,9 +196,9 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<SortableList list={$userProfileData?.links ?? []} on:sort={sortList} let:item let:index>
+	<SortableList list={$userProfileData?.order ?? []} on:sort={sortList} let:item let:index>
 		<div class="group relative">
-			<UserLink {...item} disabled={true} />
+			<UserLink icon={getItemIcon(item)} url={getItemUrl(item)} title={getItemTitle(item)} disabled={true} />
 			<!-- <Button on:click={() => deleteLink(item)} class="absolute -right-4 bottom-6 bg-transparent hover:bg-transparent duration-300 transition-all"><iconify-icon icon="mdi:instagram" height="20" /></Button> -->
 			<button on:click={() => deleteLink(item)} class="absolute -right-5 bottom-5 cursor-pointer rounded-md px-4 py-1 text-primary opacity-0 transition-all group-hover:opacity-100"><iconify-icon icon="maki:cross" height="20"></iconify-icon></button>
 		</div>
