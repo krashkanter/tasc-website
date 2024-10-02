@@ -54,11 +54,6 @@
 	$: disabled = true;
 
 	$:{
-		console.log($userData);
-		
-	}
-
-	$:{
 		const isFieldsPresent = (userInfo.name?.length ?? 0) > 0 && (userInfo.phone?.length ?? 0) > 0 && (userInfo.usn?.length ?? 0) > 0 && (username.length ?? 0) > 0;
 		let isValidTeam = true;
 		if(data.event.type === "TEAM"){

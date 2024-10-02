@@ -23,15 +23,31 @@
 		}
 	});
 
-	function formatDate(dateString: Date) {
-		const date = new Date(dateString);
+	function formatDate(startDateString: Date, endDateString: Date | null | undefined) {
+		if(endDateString) {
+			const startDate = new Date(startDateString);
+			const endDate = new Date(endDateString);
 
-		return date.toLocaleDateString('en-US', {
-			weekday: 'short',
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
+			return `${startDate.toLocaleDateString('en-US', {
+				weekday: 'short',
+				month: 'short',
+				day: 'numeric'
+			})} -<br/> ${endDate.toLocaleDateString('en-US', {
+				weekday: 'short',
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric'
+			})}`;
+		}else {
+			const startDate = new Date(startDateString);
+
+			return startDate.toLocaleDateString('en-US', {
+				weekday: 'short',
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric'
+			});
+		}
 	}
 
 	function copyToClipboard(text: string) {
@@ -89,33 +105,33 @@
 <!-- And in the upcoming page or the event slug page, the team members display, team leader highlight delete members, leave button etc -->
 
 <div class="grid-cols-9 p-3 sm:p-10 lg:grid">
-	<div class="custom-padding col-span-4 h-full p-10 lg:p-16 place-content-center flex">
+	<div class="custom-padding col-span-4 h-full p-10 lg:p-16 place-content-center flex backdrop-blur-sm">
 		<img src={event.image} alt="" class="h-full rounded-xl object-contain " />
 	</div>
-	<div class="col-span-5 lg:pt-10 lg:pr-10">
+	<div class="col-span-5 lg:pt-10 lg:pr-10 backdrop-blur-sm">
 		<p class="text-6xl font-bold max-lg:text-center max-sm:text-4xl">{event.title}</p>
 
 		<br />
 		<div class="flex flex-col justify-center lg:justify-evenly gap-2 px-8 sm:flex-row sm:p-0 md:flex-row">
 			{#if event.venue}
-				<div class={`event-details-light event-details-dark backdrop-blur-[3px] flex ${event.entryFee ? 'basis-1/3' : 'basis-2/5'} flex-nowrap items-center justify-center gap-4 rounded-lg border-2 border-slate-500 p-2 py-4 text-xl font-semibold transition-all duration-500`}>
+				<div class={`event-details-light event-details-dark backdrop-blur-[3px] flex ${event.entryFee ? 'basis-1/3' : 'basis-2/5'} flex-nowrap items-center justify-evenly gap-4 rounded-lg border-2 border-slate-500 p-2 py-4 text-xl font-semibold transition-all duration-500`}>
 					<MapPin class="dark:stroke-red-700 stroke-red-500" size="30" />
-					<p>{event.venue}</p>
+					<p class="text-center">{event.venue}</p>
 				</div>
 			{/if}
 
 			{#if event.entryFee}
-				<div class="event-details-light event-details-dark flex backdrop-blur-[3px] basis-1/3 flex-nowrap items-center justify-center gap-4 rounded-lg border-2 border-slate-500 p-2 py-4 text-xl font-semibold transition-all duration-500">
+				<div class="event-details-light event-details-dark flex backdrop-blur-[3px] basis-1/3 flex-nowrap items-center justify-evenly gap-4 rounded-lg border-2 border-slate-500 p-2 py-4 text-xl font-semibold transition-all duration-500">
 					<Ticket class="dark:stroke-green-700 stroke-green-400" size="30" />
-					<p>{event.entryFee ? '₹' + event.entryFee : 'Free'} per head</p>
+					<p class="text-center">{event.entryFee}</p>
 				</div>
 			{/if}
 
 			{#if event.date}
-				<div class={`event-details-light event-details-dark backdrop-blur-[3px] flex ${event.entryFee ? 'basis-1/3' : 'basis-2/5'} flex-nowrap items-center justify-center gap-4 rounded-lg border-2 border-slate-500 p-2 py-4 text-xl font-semibold transition-all duration-500`}>
+				<div class={`event-details-light event-details-dark backdrop-blur-[3px] flex ${event.entryFee ? 'basis-1/3' : 'basis-2/5'} flex-nowrap items-center justify-evenly gap-4 rounded-lg border-2 border-slate-500 p-2 py-4 text-xl font-semibold transition-all duration-500`}>
 					<CalendarCheck2 class="dark:stroke-blue-700 stroke-blue-500" size="30" />
 					<div>
-						<p>{formatDate(event.date)}</p>
+						<p>{@html marked(formatDate(event.date, event.endDate))}</p>
 						<p>{event.time}</p>
 					</div>
 				</div>
@@ -124,7 +140,7 @@
 
 		<br />
 
-		<div class="w-full p-4 lg:max-h-[25rem] lg:overflow-y-auto text-xl">
+		<div class="w-full p-4 lg:max-h-[25rem] lg:overflow-y-auto text-xl description-text">
 			{@html marked(event.description)}
 		</div>
 		<br />
