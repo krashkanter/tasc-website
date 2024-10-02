@@ -39,7 +39,7 @@
 	<a href="https://github.com/tasc-nmamit" target="_blank"><span class="md:text-md text-sm">With regards from technical team :)</span></a>
 
 	<div>
-		<h1 class="pt-3 text-xl">© TASC 2023</h1>
+		<h1 class="pt-3 text-xl">© TASC 2024</h1>
 	</div>
 </div>
 <!-- 

@@ -7,6 +7,8 @@ import { db } from '$lib/db/db';
 import type { User } from '@prisma/client';
 import type { PageServerLoad } from './$types';
 
+export const ssr = true;
+
 export const load = (async ({ params }) => {
 	// update the datamodel to include username in the profile collection
 	// currently you're querying firebase user collection to get the id

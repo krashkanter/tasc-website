@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import AuthCheck from '$lib/components/Auth/AuthCheck.svelte';
 
 	import { Button } from '$lib/components/ui/custom_button';
 	import * as Card from '$lib/components/ui/card';
@@ -10,10 +9,11 @@
 
 	import { user, userData, userProfileData } from '$lib/auth/stores';
 
-	import { page } from '$app/stores';
 	import { redirectTo } from '$lib/stores/redirect';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	// let redirect = $page.url.searchParams.get('redirect') ?? '';
-	let redirect = $redirectTo ?? ""
+	let redirect = $redirectTo ?? '';
 
 	let name = '';
 	let usn = '';
@@ -74,8 +74,17 @@
 		}, 500);
 	}
 
+	onMount(() => {
+		if ($userProfileData) {
+			name = $userProfileData.displayName ?? '';
+			usn = $userProfileData.usn ?? '';
+			phone = $userProfileData.phone ?? '';
+		}
+	});
+
 	async function createAccount() {
-		if ((isValidName && isValidUSN && isValidUsername && isValidPhone) || ($userProfileData?.displayName && $userProfileData.usn && isValidUsername && $userProfileData.phone)) {
+		console.log(name, usn, username, phone);
+		if (isValidName && isValidUSN && isValidUsername && isValidPhone) {
 			console.log('confirming username', username);
 
 			const response = await fetch(`/api/username?id=${$user?.id}`, {
@@ -102,7 +111,7 @@
 	}
 </script>
 
-{#if $userData !== null}
+{#if browser && $userData !== null}
 	{#if redirect !== ''}
 		{goto(redirect)}
 	{:else}
@@ -122,32 +131,23 @@
 				<Card.Content>
 					<div>
 						<Label class="text-xl" for="name">Name</Label>
-						{#if $userProfileData?.displayName}
-							<p class="text-white bg-muted px-3 py-2 text-sm rounded-md">{$userProfileData?.displayName}</p>
-						{:else}
-							<Input type="text" id="name" placeholder="Enter your full name" bind:value={name} class={!isValidName && isTouchedName ? 'bg-red-200 dark:bg-red-900' : ''} required />
-							<p class="mt-1 text-sm text-muted-foreground">This is the name that will appear on your certificates.</p>
-							{#if isTouchedName && !isValidName}
-								<div>
-									<p>The name you have entered is invalid.</p>
-									<p class="text-sm text-muted-foreground">Your name must begin with a Capital letter and shouldn't begin or end with a space.</p>
-								</div>
-							{/if}
+						<Input type="text" id="name" placeholder="Enter your full name" bind:value={name} class={!isValidName && isTouchedName ? 'bg-red-200 dark:bg-red-900' : ''} required />
+						{#if isTouchedName && !isValidName}
+							<div>
+								<p>The name you have entered is invalid.</p>
+								<p class="text-sm text-muted-foreground">Your name must begin with a Capital letter and shouldn't begin or end with a space.</p>
+							</div>
 						{/if}
 					</div>
 
 					<div class="mt-6">
 						<Label class="text-xl" for="usn">USN</Label>
-						{#if $userProfileData?.usn}
-							<p class="text-white bg-muted px-3 py-2 text-sm rounded-md">{$userProfileData.usn}</p>
-						{:else}
-							<Input type="text" id="usn" placeholder="Enter your college USN" bind:value={usn} class={!isValidUSN && isTouchedUSN ? 'bg-red-200 dark:bg-red-900' : ''} required />
-							{#if isTouchedUSN && !isValidUSN}
-								<div class="mb-2">
-									<p>USN should contain only numbers and CAPITAL letters.</p>
-									<p class="text-sm text-muted-foreground">USN must be 2-14 characters long and alphanumeric (CAPITAL letters only)</p>
-								</div>
-							{/if}
+						<Input type="text" id="usn" placeholder="Enter your college USN" bind:value={usn} class={!isValidUSN && isTouchedUSN ? 'bg-red-200 dark:bg-red-900' : ''} required />
+						{#if isTouchedUSN && !isValidUSN}
+							<div class="mb-2">
+								<p>USN should contain only numbers and CAPITAL letters.</p>
+								<p class="text-sm text-muted-foreground">USN must be 2-14 characters long and alphanumeric (CAPITAL letters only)</p>
+							</div>
 						{/if}
 					</div>
 
@@ -181,15 +181,11 @@
 
 					<div class="mt-6">
 						<Label for="whatsapp" class="mt-10 text-xl">Phone Number</Label>
-						{#if $userProfileData?.phone}
-							<p class="text-white bg-muted px-3 py-2 text-sm rounded-md">{$userProfileData.phone}</p>
-						{:else}
-							<Input type="text" class="{!isValidPhone && isTouchedPhone ? 'bg-red-200 dark:bg-red-900' : ''} {isValidPhone ? 'bg-green-300 dark:bg-green-800' : ''}" id="usn" placeholder="Enter your WhatsApp Phone Number" bind:value={phone} required />
-							{#if isTouchedPhone && !isValidPhone}
-								<div>
-									<p>Write your number as 10 digits with no other characters</p>
-								</div>
-							{/if}
+						<Input type="text" class="{!isValidPhone && isTouchedPhone ? 'bg-red-200 dark:bg-red-900' : ''} {isValidPhone ? 'bg-green-300 dark:bg-green-800' : ''}" id="usn" placeholder="Enter your WhatsApp Phone Number" bind:value={phone} required />
+						{#if isTouchedPhone && !isValidPhone}
+							<div>
+								<p>Write your number as 10 digits with no other characters</p>
+							</div>
 						{/if}
 
 						<p class="mt-1 text-sm text-muted-foreground">We will use this number to contact you if necessary.</p>
