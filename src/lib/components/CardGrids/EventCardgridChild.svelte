@@ -11,11 +11,6 @@
 	export let event: any;
 	export let eventType: string;
 
-	const options: Intl.DateTimeFormatOptions = {
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric'
-	};
 	let registered: boolean = false;
 	let team: any;
 	let teamMembers: any;
@@ -35,6 +30,31 @@
 			registered = data.isExists;
 		}
 	});
+
+	function formatDate(startDateString: Date, endDateString: Date | null | undefined) {
+		if(endDateString) {
+			const startDate = new Date(startDateString);
+			const endDate = new Date(endDateString);
+
+			return `${startDate.toLocaleDateString('en-US', {
+				month: 'short',
+				day: 'numeric'
+			})} - ${endDate.toLocaleDateString('en-US', {
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric'
+			})}`;
+		}else {
+			const startDate = new Date(startDateString);
+
+			return startDate.toLocaleDateString('en-US', {
+				weekday: 'short',
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric'
+			});
+		}
+	}
 
 	function copyToClipboard(text: string) {
 		navigator.clipboard
@@ -89,24 +109,24 @@
 </script>
 
 {#if eventType === 'upcoming'}
-	<div class="flex h-full w-full flex-col relative">
+	<div class="flex h-full w-full flex-col relative backdrop-blur-xl">
 		<VectorEvent />
-		<div class="dark:custom-shadow-black bg-muted-light dark:bg-muted-dark m-auto w-full rounded-2xl dark:bg-purple-950 bg-violet-500 bg-opacity-10 dark:bg-opacity-30 px-5 py-6 shadow-xl backdrop-blur-sm dark:drop-shadow-md md:grid grid-cols-5">
+		<div class="dark:custom-shadow-black bg-muted-light dark:bg-muted-dark m-auto w-full rounded-2xl bg-opacity-10 dark:bg-opacity-30 px-5 py-6 shadow-xl dark:drop-shadow-md md:grid grid-cols-5">
 			<div class="self-center col-span-2">
 				{#if event.image}
 					<img src={event?.image} alt={event.title} class="" />
 				{/if}
 			</div>
 			<div class="w-full sm:px-10 h-[80%] col-span-3 flex-wrap">
-				<h1 class="mb-5 text-center lg:text-5xl md:text-4xl text-3xl font-bold text-purple-600">{event.title}</h1>
-				<div class="m-auto lg:text-2xl md:text-xl bg-card bg-opacity-50 rounded-xl md:p-5 p-2 h-full justify-around grid lg:w-[90%] lg:gap-y-4 sm:gap-y-2">
-					<p class="lg:text-3xl md:text-2xl text-xl text-center">{event.brief}</p>
+				<h1 class="mb-5 text-center lg:text-5xl md:text-4xl text-3xl font-bold text-brand dark:text-purple-600">{event.title}</h1>
+				<div class="m-auto lg:text-2xl md:text-xl bg-card bg-opacity-50 rounded-xl md:p-5 p-2 h-full justify-around grid lg:w-[90%] gap-y-4">
+					<p class="lg:text-2xl md:text-xl text-lg text-center">{event.brief}</p>
 					<div class="w-full grid justify-around lg:text-2xl md:text-xl text-lg">
 						{#if event.date}
 							<div class="grid grid-cols-5">
 								<p>Date</p>
 								<p class="text-center">:</p>
-								<p class="col-span-3">{event.date.toLocaleDateString(undefined, options)}</p>
+								<p class="col-span-3">{formatDate(event.date, event.endDate)}</p>
 							</div>
 						{/if}
 						{#if event.time}
@@ -125,7 +145,7 @@
 						{/if}
 					</div>
 					<div class={`${(registered && event.type === 'SOLO' ? 'flex-col' : '')} justify-evenly pt-4 space-x-2 flex w-full`}>
-						<button class={`rounded-lg bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 ${(registered && event.type === 'SOLO' ? 'self-center' : 'self-end')}`} on:click={()=>goto(`/events/upcoming/${event.id}`)}>View Details</button>
+						<button class={`rounded-lg z-20 bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 ${(registered && event.type === 'SOLO' ? 'self-center' : 'self-end')}`} on:click={()=>goto(`/events/upcoming/${event.id}`)}>View Details</button>
 						{#if registered}
 							{#if event.type === 'TEAM' && team}
 								<Dialog.Root>
@@ -205,7 +225,7 @@
 			</div>
 			<h1 class="py-4 text-center text-2xl font-bold">{event.title}</h1>
 			{#if event.date}
-				<h2 class="text-center text-xl">Date: {event.date.toLocaleDateString(undefined, options)}</h2>
+				<h2 class="text-center text-xl">Date: {formatDate(event.date, event.endDate)}</h2>
 			{/if}
 			{#if event.time}
 				<h2 class="text-center text-xl">Time: {event.time}</h2>
