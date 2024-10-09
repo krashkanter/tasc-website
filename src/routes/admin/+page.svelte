@@ -1,9 +1,11 @@
-<script>
-	import MainButton from '$lib/components/Hackathon/MainButton.svelte';
+<script lang="ts">
+	import { userProfileData } from '$lib/auth/stores';
 </script>
 
-<div class="flex h-screen w-full flex-col items-center justify-center gap-x-10 gap-y-10 md:flex-row">
-	<a href="admin/snh2023scan"><MainButton>Scan</MainButton></a>
-	<a href="admin/snh2023final"><MainButton>SNH2023Final</MainButton></a>
-	<a href="admin/snh2023"><MainButton>SNH2023</MainButton></a>
+<div class="flex h-full w-full justify-center items-center">
+	<div class="flex flex-col items-center">
+		<h1 class="text-3xl font-bold mb-4">Welcome {$userProfileData?.displayName}</h1>
+        <p>This is Admin Dashboard</p>
+        <a class="text-blue-600 underline" href="/">Go to Home</a>
+	</div>
 </div>

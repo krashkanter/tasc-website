@@ -10,3 +10,19 @@
 <slot />
 
 <Footer />
+
+<svelte:head>
+	<style>
+		::-webkit-scrollbar {
+			width: 8px;
+		}
+		::-webkit-scrollbar-thumb {
+			background-color: #4b5563;
+			border-radius: 10px;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			@apply cursor-pointer
+		}
+	</style>
+</svelte:head>

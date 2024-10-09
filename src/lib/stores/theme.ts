@@ -4,7 +4,7 @@ import { browser } from "$app/environment";
 // Dark & light theme store
 type DarkTheme = boolean;
 
-const getTheme = () => {
+export const getTheme = () => {
     if (browser) {
         return localStorage.theme === "dark" ||
             (!("theme" in localStorage) &&
