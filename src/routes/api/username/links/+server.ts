@@ -4,10 +4,20 @@ export async function PATCH({ request }) {
     const data = await request.json();
     const { id, ...updateData } = data;
 
-    const dbData = await db.links.update({
-        where: { userId: id },
-        data: { ...updateData }
-    });
+    const links = await db.links.findUnique({ where: { userId: id } });
+
+    let dbData: any = null;
+
+    if(links) {
+        dbData = await db.links.update({
+            where: { userId: id },
+            data: { ...updateData }
+        });
+    }else {
+        dbData = await db.links.create({
+            data: { userId: id, ...updateData }
+        });
+    }
 
     if(dbData){
         const user = await db.user.findUnique({ where: { id: id } });
