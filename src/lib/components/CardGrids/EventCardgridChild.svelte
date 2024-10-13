@@ -144,12 +144,12 @@
 							</div>
 						{/if}
 					</div>
-					<div class={`${(registered && event.type === 'SOLO' ? 'flex-col' : '')} justify-evenly pt-4 space-x-2 flex w-full`}>
-						<button class={`rounded-lg z-20 bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 ${(registered && event.type === 'SOLO' ? 'self-center' : 'self-end')}`} on:click={()=>goto(`/events/upcoming/${event.id}`)}>View Details</button>
+					<div class={`${(registered && event.type === 'SOLO' ? 'flex-col' : '')} justify-evenly space-x-2 flex w-full`}>
+						<button class={`rounded-lg bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 ${(registered && event.type === 'SOLO' ? 'self-center' : 'self-end')}`} on:click={()=>goto(`/events/upcoming/${event.id}`)}>View Details</button>
 						{#if registered}
 							{#if event.type === 'TEAM' && team}
 								<Dialog.Root>
-									<Dialog.Trigger>
+									<Dialog.Trigger class="self-end">
 										<button class="rounded-lg bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 self-end">Team Details</button>
 									</Dialog.Trigger>
 									<Dialog.Content class="max-w-[80%]">
