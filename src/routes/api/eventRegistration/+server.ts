@@ -39,6 +39,8 @@ export async function POST({ request }) {
     }
 
     if(data.team === 'create'){
+        const teamCount = await db.team.count({ where: { eventId: data.eventId } });
+        if(teamCount >= data.maxTeamCount) return new Response(JSON.stringify({ error: 'Max team limit reached' }), { status: 201 });
         const team = await db.team.create({
             data: {
                 eventId: data.eventId,
@@ -68,6 +70,8 @@ export async function POST({ request }) {
         }
         return new Response(JSON.stringify({ error: 'Team is full' }), { status: 201 });
     }else {
+        const teamCount = await db.team.count({ where: { eventId: data.eventId } });
+        if(teamCount >= data.maxTeamCount) return new Response(JSON.stringify({ error: 'Max participant limit reached' }), { status: 201 });
         const team = await db.team.create({
             data: {
                 eventId: data.eventId,
