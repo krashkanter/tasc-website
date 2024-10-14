@@ -111,9 +111,14 @@ export async function DELETE({request}){
 
 export async function PATCH({request}){
     const data=await request.json()
+
+    const teamMemberCount = await db.user.count({ where: { Team: { some: { id: data.teamId } } } });
+
+    if(teamMemberCount < data.minTeamSize) return new Response(JSON.stringify({ error: 'Team is not full' }), { status: 201 });
+
     const updateTeam = await db.team.update({
         where: {
-            id: data.teamId
+            id: data.teamId,
         },
         data: {
             isConfirmed: true
