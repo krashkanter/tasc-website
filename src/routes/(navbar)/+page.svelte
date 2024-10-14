@@ -119,7 +119,7 @@
 
 	{#if data.upcoming}
 		<div 
-			class={`hideScrollbar fixed left-[50%] top-[50%] z-50 grid max-h-[80dvh] w-[80%] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-hidden rounded-3xl bg-[#2f3e41] sm:bg-opacity-90 py-4 shadow-lg md:max-w-[60rem] md:p-6 p-2 font-jockey backdrop-blur-md 
+			class={`hideScrollbar fixed left-[50%] top-[50%] z-50 grid max-h-[80dvh] w-[80%] translate-x-[-50%] translate-y-[-50%] overflow-y-hidden rounded-3xl dark:bg-[#2f3e41] bg-[#fde6d1] sm:bg-opacity-90 py-4 shadow-lg md:max-w-[60rem] md:p-6 p-2 font-jockey backdrop-blur-md 
 				${showContent ? 'cursor-auto' : 'cursor-pointer'}`} 
 			bind:this={dialog}
 			on:click={() => !showContent && handleDialog()}
@@ -131,7 +131,7 @@
 				<p class="text-transparent bg-gradient-to-r from-brand to-[#C850AF] bg-clip-text tracking-normal">WHAT'S NEW</p>
 			</div>
 			<div bind:this={content}>
-				<div class="flex flex-col items-center gap-4 lg:text-[2.5rem] text-[1.8rem] ">
+				<div class="flex flex-col items-center lg:text-[2.5rem] text-[1.8rem] sm:space-y-6 space-y-2">
 					<p class="text-center sm:font-normal font-thin">{data.upcoming.notification}</p>
 					<div class="flex gap-4">
 						<a href="/events/upcoming">

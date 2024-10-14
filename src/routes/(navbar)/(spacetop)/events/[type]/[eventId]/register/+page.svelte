@@ -54,16 +54,23 @@
 	$: disabled = true;
 
 	$:{
-		const isFieldsPresent = (userInfo.name?.length ?? 0) > 0 && (userInfo.phone?.length ?? 0) > 0 && (userInfo.usn?.length ?? 0) > 0 && ($userData?.username === null ? ((username.length ?? 0) > 0): true) && (data.event.entryFee ? (userInfo.transactionId?.length ?? 0) > 0 && isValidTransactionId as boolean : true);
-		let isValidTeam = true;
+		const isFieldsPresent = (userInfo.name?.length ?? 0) > 0
+			&& (userInfo.phone?.length ?? 0) > 0
+			&& (userInfo.usn?.length ?? 0) > 0
+			&& ($userData?.username === null ? ((username.length ?? 0) > 0): true);
+
+		let isValidTeam = false;
 		if(data.event.type === "TEAM"){
 			if(userInfo.team === 'create'){
-				isValidTeam = (userInfo.teamName?.length ?? 0) > 0 && isValidTeamName as boolean && (data.event.entryFee ? (userInfo.transactionId?.length ?? 0) > 0 && isValidTransactionId as boolean : true);
-			}else{
+				isValidTeam = (userInfo.teamName?.length ?? 0) > 0
+					&& isValidTeamName as boolean
+					&& (data.event.entryFee ? (userInfo.transactionId?.length ?? 0) > 0 && isValidTransactionId as boolean : true);
+			}else if(userInfo.team == 'join') {
 				isValidTeam = (userInfo.teamId?.length ?? 0) > 0 && isValidTeamId as boolean;
 			}
-		}
-		disabled =  !isFieldsPresent || !isValidTeam || ($userData?.username === null ? isTakenUsername : false);
+		} else if(data.event.type == "SOLO") 
+			isValidTeam = true && (data.event.entryFee ? (userInfo.transactionId?.length ?? 0) > 0 && isValidTransactionId as boolean : true);;
+		disabled =  !isFieldsPresent || !isValidTeam || !($userData?.username === null ? isTakenUsername : true);
 	}
 	
 	let loading = false;
@@ -322,12 +329,24 @@
 				<p class="text-sm text-muted-foreground">USN must be 2-14 characters long and alphanumeric (CAPITAL letters only)</p>
 			</div>
 		{/if}
+		{#if $page.data.event.entryFee && data.event.type === 'SOLO'}
+			<div class="h-50 w-50 mx-auto my-5">
+				<p class="text-center text-xl">Scan and pay the entry fee</p>
+				<br />
+				<div class="m-auto w-fit">
+					<img src={qrCodeDataUrl} alt="QR Code" />
+				</div>
+				<br />
+				<label for="transactionId">UPI Transaction ID</label>
+				<Input type="text" name="transactionId" placeholder="UPI Transaction Id" bind:value={userInfo.transactionId} class={cn(`${!isValidTransactionId && isTouchedTransactionId ? 'bg-red-200 dark:bg-red-900' : ''}`, '')} required />
+			</div>
+		{/if}
 		{#if data.event.type === 'TEAM'}
 			<br />
 			<label for="team" class="text-xl">Create or join a team</label>
 			<Popover.Root bind:open>
 				<Popover.Trigger asChild let:builder>
-					<Button builders={[builder]} variant="outline" role="combobox" aria-expanded={open} class="w-[200px] justify-between hover:bg-brand">
+					<Button builders={[builder]} variant="outline" role="combobox" aria-expanded={open} class="w-[200px] justify-between dark:hover:bg-brand hover:bg-[rgb(234,172,255)]">
 						{selectedValue}
 						<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
@@ -337,7 +356,7 @@
 						<Command.Group>
 							{#each options as option}
 								<Command.Item
-									class="aria-selected:bg-brand hover:aria-selected:bg-brand"
+									class="dark:aria-selected:bg-brand dark:hover:aria-selected:bg-brand aria-selected:bg-[rgb(234,172,255)] hover:aria-selected:bg-[rgb(234,172,255)]"
 									value={option.value}
 									onSelect={(currentValue) => {
 										value = currentValue;
