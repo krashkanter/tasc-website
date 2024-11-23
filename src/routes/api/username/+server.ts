@@ -4,6 +4,10 @@ export async function GET({ url, cookies }) {
 	const username = url.searchParams.get('name') || null;
 	const sessionId = cookies.get('__Secure-authjs.session-token')
 
+	if (!sessionId) {
+		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
+
 	if (username === null) {
 		return new Response(JSON.stringify({ isExists: true }), { status: 200 });
 	} else {
@@ -30,6 +34,10 @@ export async function POST({ request, url, cookies }) {
 	const data = await request.json();
 	const id = url.searchParams.get('id');
 	const sessionId = cookies.get('__Secure-authjs.session-token')
+
+	if (!sessionId) {
+		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
 
 	if (id && data) {
 		const dbData = await db.user.update({
@@ -60,6 +68,10 @@ export async function PATCH({ request, cookies }) {
 	const sessionId = cookies.get('__Secure-authjs.session-token')
 	const data = await request.json();
 	const { id , ...updateData} = data
+
+	if (!sessionId) {
+		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
 
 	const dbData = await db.user.update({
 		where: {

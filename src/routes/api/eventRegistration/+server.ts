@@ -6,6 +6,10 @@ export async function GET({ url, cookies }) {
     const studentId = url.searchParams.get('studentId') || '';
     const sessionId = cookies.get('__Secure-authjs.session-token');
 
+	if (!sessionId) {
+		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
+
     const registration = await db.team.findFirst({
         where: {
             eventId: eventId,
@@ -33,6 +37,10 @@ export async function GET({ url, cookies }) {
 export async function POST({ request, cookies }) {
     const data = await request.json();
     const sessionId = cookies.get('__Secure-authjs.session-token');
+
+	if (!sessionId) {
+		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
 
     if (data.userCreate) {
         await db.user.update({

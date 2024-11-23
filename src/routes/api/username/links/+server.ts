@@ -2,8 +2,12 @@ import { db } from "$lib/db/db";
 
 export async function PATCH({ request, cookies }) {
     const data = await request.json();
-    const sessionId = cookies.get('authjs.session-token');
+    const sessionId = cookies.get('__Secure-authjs.session-token');
     const { id, ...updateData } = data;
+
+	if (!sessionId) {
+		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
 
     const links = await db.links.findUnique({ where: { userId: id } });
 
