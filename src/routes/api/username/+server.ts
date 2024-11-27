@@ -1,11 +1,18 @@
 import { db } from '$lib/db/db';
 
-export async function GET({ url, cookies }) {
+const allowedOrigins = ["https://tascnmamit.in", "http://localhost:5173"];
+
+export async function GET({ url, cookies, request }) {
 	const username = url.searchParams.get('name') || null;
 	const sessionId = cookies.get('__Secure-authjs.session-token')
+	const origin = request.headers.get('origin') ?? '';
 
 	if (!sessionId) {
 		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
+
+	if (!allowedOrigins.includes(origin)) {
+		return new Response(JSON.stringify({ error: 'Invalid origin' }), { status: 403 });
 	}
 
 	if (username === null) {
@@ -33,10 +40,15 @@ export async function GET({ url, cookies }) {
 export async function POST({ request, url, cookies }) {
 	const data = await request.json();
 	const id = url.searchParams.get('id');
+	const origin = request.headers.get('origin') ?? '';
 	const sessionId = cookies.get('__Secure-authjs.session-token')
 
 	if (!sessionId) {
 		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
+
+	if (!allowedOrigins.includes(origin)) {
+		return new Response(JSON.stringify({ error: 'Invalid origin' }), { status: 403 });
 	}
 
 	if (id && data) {
@@ -67,10 +79,15 @@ export async function POST({ request, url, cookies }) {
 export async function PATCH({ request, cookies }) {
 	const sessionId = cookies.get('__Secure-authjs.session-token')
 	const data = await request.json();
+	const origin = request.headers.get('origin') ?? '';
 	const { id , ...updateData} = data
 
 	if (!sessionId) {
 		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
+
+	if (!allowedOrigins.includes(origin)) {
+		return new Response(JSON.stringify({ error: 'Invalid origin' }), { status: 403 });
 	}
 
 	const dbData = await db.user.update({
