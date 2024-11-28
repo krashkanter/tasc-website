@@ -8,7 +8,7 @@ export const load = (async ({ params }) => {
 			placements: {
 				include: {
 					student: {
-						include: { name: true }
+						include: { user: true }
 					},
 					offers: {
 						include: {
@@ -19,6 +19,8 @@ export const load = (async ({ params }) => {
 			}
 		}
 	});
+
+	const companies = await db.company.findMany();
 
 	let placements: Record<string, any[]> = {};
 
@@ -31,7 +33,7 @@ export const load = (async ({ params }) => {
 
 			placements[companyName].push({
 				studentId: p.student.id,
-				studentName: p.student.name.displayName,
+				studentName: p.student.user.displayName,
 				studentImage: p.student.image,
 				studentPackage: o.package
 			});
@@ -39,7 +41,7 @@ export const load = (async ({ params }) => {
 	})
 
 	return {
-		companies: placement?.companies,
+		companies: { names: placement?.companies, companies: companies },
 		placements: placements
 	}
 }) satisfies ServerLoad;
