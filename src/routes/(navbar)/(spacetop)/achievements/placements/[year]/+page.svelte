@@ -5,7 +5,6 @@
     let year = $page.params.year;
     
     export let data: PageData;
-    console.log(data);
 </script>
 
 <div class="w-full h-auto grid">

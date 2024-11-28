@@ -1,6 +1,6 @@
 <script lang="ts">
     import PlacementCard from "$lib/components/Card/PlacementCard.svelte";
-    export let companies: string[];
+    export let companies: any;
     export let placements: Record<string, any[]> = {};
 </script>
 
