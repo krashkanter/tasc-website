@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { NAME_TO_IMAGE as images } from '$lib/data/Images';
 	import * as Dialog from '$lib/components/ui/dialog-publications';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
@@ -70,7 +69,7 @@
 		{#if teacher.publications.length > 0}
 			<div class="animate-container flex grid-cols-10 flex-col justify-items-center gap-3 rounded-2xl border border-blue-500 bg-card p-2 opacity-0 sm:grid sm:gap-0 sm:p-3 md:p-4 lg:p-5">
 				<div class="relative col-span-2 grid place-content-center justify-items-center transition duration-300 ease-in-out">
-					<div class="image-container"><img src={images.find((n) => n.name === teacher.name)?.image || ''} alt="" class="aspect-[3/4] w-40 rounded-2xl sm:w-auto sm:object-cover" /></div>
+					<div class="image-container"><img src={teacher.image} alt="" class="aspect-[3/4] w-40 rounded-2xl sm:w-auto sm:object-cover" /></div>
 					<!-- <div class="hover:dark:custom-drop-shadow-white hover:custom-drop-shadow-black absolute inset-0 grid items-center justify-center opacity-0 transition-opacity duration-300 hover:opacity-100 dark:text-white">
 						<p class="sm:text-md justify-self-center md:text-lg lg:text-xl">{teacher.name}</p>
 						<p class="sm:text-md justify-self-center md:text-lg lg:text-xl">{teacher.designation}</p>
