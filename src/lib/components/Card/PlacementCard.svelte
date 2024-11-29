@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { gsap } from 'gsap';
 	import { onMount, onDestroy } from 'svelte';
-	import { NAME_TO_IMAGE as images } from '$lib/data/Images';
 
 	export let offers: Record<string, any[]>;
 	export let companyNames: any;
