@@ -1,8 +1,13 @@
 import { db } from "$lib/db/db";
 
-export async function PATCH({ request }) {
+export async function PATCH({ request, cookies }) {
     const data = await request.json();
+    const sessionId = cookies.get('__Secure-authjs.session-token');
     const { id, ...updateData } = data;
+
+	if (!sessionId) {
+		return new Response(JSON.stringify({ error: 'Unauthorized: No session token provided' }), { status: 401 });
+	}
 
     const links = await db.links.findUnique({ where: { userId: id } });
 
@@ -10,7 +15,16 @@ export async function PATCH({ request }) {
 
     if(links) {
         dbData = await db.links.update({
-            where: { userId: id },
+            where: { 
+                userId: id,
+                user: {
+                    sessions: {
+                        some: {
+                            sessionToken: sessionId
+                        }
+                    }
+                }
+             },
             data: { ...updateData }
         });
     }else {
@@ -20,7 +34,16 @@ export async function PATCH({ request }) {
     }
 
     if(dbData){
-        const user = await db.user.findUnique({ where: { id: id } });
+        const user = await db.user.findUnique({ 
+            where: { 
+                id: id,
+                sessions: {
+                    some: {
+                        sessionToken: sessionId
+                    }
+                }
+            } 
+        });
         return new Response(JSON.stringify({ message: 'Done', data: { session: { user: user }, links: dbData } }), { status: 200 });
     }
     else

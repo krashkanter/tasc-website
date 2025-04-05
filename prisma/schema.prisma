@@ -73,7 +73,7 @@ model Session {
 model Student {
   id String @id @default(cuid())
 
-  name      User       @relation(fields: [userId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
   userId    String     @unique
   image     String
   placement Placement?
@@ -194,6 +194,7 @@ model Placement {
 model Company {
   id String @id @default(cuid())
 
+  image     String
   companyName String
   offers      Offer[]
 }
