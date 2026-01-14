@@ -51,6 +51,7 @@
     "@auth/sveltekit": "^1.4.2",
     "@prisma/client": "^5.19.1",
     "@radix-ui/react-slot": "^1.0.2",
+    "@sveltejs/adapter-vercel": "^6.3.0",
     "@vercel/analytics": "^1.1.1",
     "axios": "^1.5.1",
     "bits-ui": "^0.5.7",
